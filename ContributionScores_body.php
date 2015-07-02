@@ -81,17 +81,14 @@ class ContributionScores extends IncludableSpecialPage {
 		$options['ORDER BY'] = 'rev_count DESC';
 		$sqlMostRevs  = $dbr->selectSQLText( 'revision', $vars, $conds, __METHOD__, $options);
 
-		$sql = "SELECT user_id,
-				user_name,
-				user_real_name,
-				page_count,
-				rev_count,
-				(page_count + SQRT(rev_count - page_count) * 2) AS wiki_rank
-				FROM {$userTable} u JOIN (({$sqlMostPages}) UNION ({$sqlMostRevs})) s ON (user_id = rev_user)
-				ORDER BY wiki_rank DESC
-				LIMIT {$limit}";
+		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count' );
+		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
+		$options = [ 'ORDER BY' => 'wiki_rank DESC', 'LIMIT' => $limit ];
+		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ]);
+		$tables = array( 'u' => 'user', 's' => "({$union})" );
+		$joins = array( 's' => array( 'JOIN', 'user_id = rev_user' ));
 
-		$res = $dbr->query( $sql );
+		$res = $dbr->select($tables, $vars, [], __METHOD__, $options, $joins);
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : ' sortable';
 
