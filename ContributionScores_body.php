@@ -84,7 +84,7 @@ class ContributionScores extends IncludableSpecialPage {
 		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count' );
 		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
 		$options = [ 'ORDER BY' => 'wiki_rank DESC', 'LIMIT' => $limit ];
-		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ]);
+		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ], FALSE);
 		$tables = array( 'u' => 'user', 's' => "({$union})" );
 		$joins = array( 's' => array( 'JOIN', 'user_id = rev_user' ));
 
