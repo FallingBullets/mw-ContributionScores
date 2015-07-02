@@ -208,13 +208,17 @@ class ContributionScores extends IncludableSpecialPage {
 			$days = 7;
 		}
 
-		if ( $days > 0 ) {
-			$reportTitle = $this->msg( 'contributionscores-days' )->numParams( $days )->text();
-		} else {
-			$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
+		if (stripos($options, 'notitle') === FALSE)
+		{
+			if ( $days > 0 ) {
+				$reportTitle = $this->msg( 'contributionscores-days' )->numParams( $days )->text();
+			} else {
+				$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
+			}
+			$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $limit )->text();
+			$title = Xml::element( 'h4', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
 		}
-		$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $limit )->text();
-		$title = Xml::element( 'h4', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
+
 		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
 	}
 
