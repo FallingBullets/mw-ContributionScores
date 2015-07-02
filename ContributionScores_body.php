@@ -96,7 +96,7 @@ class ContributionScores extends IncludableSpecialPage {
 			Html::element( 'th', array(), $this->msg( 'contributionscores-score' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-pages' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-changes' )->text() ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-username' )->text() );
+			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributionscores-username' )->text() );
 
 		$altrow = '';
 		$user_rank = 1;
