@@ -42,22 +42,40 @@ class ContributionScores extends IncludableSpecialPage {
 		$sqlWhere = "";
 		$nextPrefix = "WHERE";
 
+		$vars = array(
+			'rev_user',
+			'page_count' => 'COUNT(DISTINCT rev_page)',
+			'rev_count' => 'COUNT(rev_id)',
+		);
+		$conds = array();
+		$options = array(
+			'GROUP BY' => 'rev_user',
+			'LIMIT' => $limit,
+		);
+
 		if ( $days > 0 ) {
 			$date = time() - ( 60 * 60 * 24 * $days );
 			$dateString = $dbr->timestamp( $date );
-			$sqlWhere .= " {$nextPrefix} rev_timestamp > '$dateString'";
+			$cond = "rev_timestamp > '$dateString'";
+			$sqlWhere .= " {$nextPrefix} {$cond}";
+			$conds[] = $cond;
 			$nextPrefix = "AND";
 		}
 
 		if ( $wgContribScoreIgnoreBlockedUsers ) {
-			$sqlWhere .= " {$nextPrefix} rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
+			$cond = "rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
+			$sqlWhere .= " {$nextPrefix} {$cond}";
+			$conds[] = $cond;
 			$nextPrefix = "AND";
 		}
 
 		if ( $wgContribScoreIgnoreBots ) {
-			$sqlWhere .= " {$nextPrefix} rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
+			$cond = "rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
+			$sqlWhere .= " {$nextPrefix} {$cond}";
+			$conds[] = $cond;
 		}
 
+		$conds['ORDER BY'] = 'rev_count DESC';
 		$sqlMostPages = "SELECT rev_user,
 						 COUNT(DISTINCT rev_page) AS page_count,
 						 COUNT(rev_id) AS rev_count
@@ -67,6 +85,7 @@ class ContributionScores extends IncludableSpecialPage {
 						 ORDER BY page_count DESC
 						 LIMIT {$limit}";
 
+		$conds['ORDER BY'] = 'rev_count DESC';
 		$sqlMostRevs  = "SELECT rev_user,
 						 COUNT(DISTINCT rev_page) AS page_count,
 						 COUNT(rev_id) AS rev_count
