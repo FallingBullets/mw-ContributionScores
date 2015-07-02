@@ -75,25 +75,11 @@ class ContributionScores extends IncludableSpecialPage {
 			$conds[] = $cond;
 		}
 
-		$conds['ORDER BY'] = 'rev_count DESC';
-		$sqlMostPages = "SELECT rev_user,
-						 COUNT(DISTINCT rev_page) AS page_count,
-						 COUNT(rev_id) AS rev_count
-						 FROM {$revTable}
-						 {$sqlWhere}
-						 GROUP BY rev_user
-						 ORDER BY page_count DESC
-						 LIMIT {$limit}";
+		$options['ORDER BY'] = 'page_count DESC';
+		$sqlMostPages = $dbr->selectSQLText( 'revision', $vars, $conds, __METHOD__, $options);
 
-		$conds['ORDER BY'] = 'rev_count DESC';
-		$sqlMostRevs  = "SELECT rev_user,
-						 COUNT(DISTINCT rev_page) AS page_count,
-						 COUNT(rev_id) AS rev_count
-						 FROM {$revTable}
-						 {$sqlWhere}
-						 GROUP BY rev_user
-						 ORDER BY rev_count DESC
-						 LIMIT {$limit}";
+		$options['ORDER BY'] = 'rev_count DESC';
+		$sqlMostRevs  = $dbr->selectSQLText( 'revision', $vars, $conds, __METHOD__, $options);
 
 		$sql = "SELECT user_id,
 				user_name,
