@@ -27,7 +27,7 @@ class ContributionScores extends IncludableSpecialPage {
 	 * @param $options array of options (default none; nosort/notools)
 	 * @return Html Table representing the requested Contribution Scores.
 	 */
-	function genContributionScoreTable( $days, $limit, $title = null, $options = 'none' ) {
+	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
 		global $wgContribScoreIgnoreBots, $wgContribScoreIgnoreBlockedUsers, $wgContribScoresUseRealName;
 
 		$opts = explode( ',', strtolower( $options ) );
@@ -48,10 +48,7 @@ class ContributionScores extends IncludableSpecialPage {
 			'rev_count' => 'COUNT(rev_id)',
 		);
 		$conds = array();
-		$options = array(
-			'GROUP BY' => 'rev_user',
-			'LIMIT' => $limit,
-		);
+		$options = array( 'GROUP BY' => 'rev_user' );
 
 		if ( $days > 0 ) {
 			$date = time() - ( 60 * 60 * 24 * $days );
@@ -60,6 +57,11 @@ class ContributionScores extends IncludableSpecialPage {
 			$sqlWhere .= " {$nextPrefix} {$cond}";
 			$conds[] = $cond;
 			$nextPrefix = "AND";
+		}
+
+		if ($limit > 0)
+		{
+			$options['LIMIT'] = $limit;
 		}
 
 		if ( $wgContribScoreIgnoreBlockedUsers ) {
@@ -83,7 +85,11 @@ class ContributionScores extends IncludableSpecialPage {
 
 		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count' );
 		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
-		$options = [ 'ORDER BY' => 'wiki_rank DESC', 'LIMIT' => $limit ];
+		$options = [ 'ORDER BY' => 'wiki_rank DESC' ];
+		if ($limit > 0)
+		{
+			$options['LIMIT'] = $limit;
+		}
 		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ], FALSE);
 		$tables = array( 'u' => 'user', 's' => "({$union})" );
 		$joins = array( 's' => array( 'JOIN', 'user_id = rev_user' ));
@@ -217,7 +223,9 @@ class ContributionScores extends IncludableSpecialPage {
 			} else {
 				$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
 			}
-			$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $limit )->text();
+			if ($limit > 0) {
+				$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $limit )->text();
+			}
 			$title = Xml::element( 'h4', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
 		}
 
@@ -232,8 +240,8 @@ class ContributionScores extends IncludableSpecialPage {
 
 		if ( !is_array( $wgContribScoreReports ) ) {
 			$wgContribScoreReports = array(
-				array( 7, 50 ),
-				array( 30, 50 ),
+				array( 7, -1 ),
+				array( 30, -1 ),
 				array( 0, 50 )
 			);
 		}
@@ -248,7 +256,9 @@ class ContributionScores extends IncludableSpecialPage {
 			} else {
 				$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
 			}
-			$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $revs )->text();
+			if ($revs > 0) {
+				$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $revs )->text();
+			}
 			$title = Xml::element( 'h2', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
 			$out->addHTML( $title );
 			$out->addHTML( $this->genContributionScoreTable( $days, $revs ) );
