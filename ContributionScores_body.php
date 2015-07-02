@@ -76,15 +76,15 @@ class ContributionScores extends IncludableSpecialPage {
 						 ORDER BY rev_count DESC
 						 LIMIT {$limit}";
 
-		$sql = "SELECT user_id, " .
-			"user_name, " .
-			"user_real_name, " .
-			"page_count, " .
-			"rev_count, " .
-			"page_count+SQRT(rev_count-page_count)*2 AS wiki_rank " .
-			"FROM $userTable u JOIN (($sqlMostPages) UNION ($sqlMostRevs)) s ON (user_id=rev_user) " .
-			"ORDER BY wiki_rank DESC " .
-			"LIMIT $limit";
+		$sql = "SELECT user_id,
+				user_name,
+				user_real_name,
+				page_count,
+				rev_count,
+				(page_count + SQRT(rev_count - page_count) * 2) AS wiki_rank
+				FROM {$userTable} u JOIN (({$sqlMostPages}) UNION ({$sqlMostRevs})) s ON (user_id = rev_user)
+				ORDER BY wiki_rank DESC
+				LIMIT {$limit}";
 
 		$res = $dbr->query( $sql );
 
