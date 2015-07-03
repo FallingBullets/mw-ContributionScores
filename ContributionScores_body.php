@@ -124,6 +124,9 @@ class ContributionScores extends IncludableSpecialPage {
 			Html::element( 'th', array(), $this->msg( 'contributionscores-score' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-pages' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-changes' )->text() ) .
+			Html::element( 'th', array(), $this->msg( 'contributionscores-diff' ) ) .
+			Html::element( 'th', array(), $this->msg( 'contributionscores-add' ) ) .
+			Html::element( 'th', array(), $this->msg( 'contributionscores-sub' ) ) .
 			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributionscores-username' )->text() );
 
 		$altrow = '';
@@ -150,7 +153,10 @@ class ContributionScores extends IncludableSpecialPage {
 				$lang->formatNum( round( $user_rank, 0 ) ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( round( $row->wiki_rank, 0 ) ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->page_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->rev_count ) . "\n</td><td class='content'>" .
+				$lang->formatNum( $row->rev_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
+				$lang->formatNum( $row->size_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
+				$lang->formatNum( $row->pos_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
+				$lang->formatNum( $row->neg_diff ) . "\n</td><td class='content'>" .
 				$userLink;
 
 			# Option to not display user tools

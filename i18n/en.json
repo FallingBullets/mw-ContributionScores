@@ -12,6 +12,9 @@
     "contributionscores-rank": "Rank",
     "contributionscores-pages": "Pages",
     "contributionscores-changes": "Changes",
+    "contributionscores-diff": "Total Changes",
+    "contributionscores-add": "Additions",
+    "contributionscores-sub": "Removals",
     "contributionscores-username": "Username",
     "contributionscores-invalidusername": "Invalid username",
     "contributionscores-invalidmetric": "Invalid metric"
