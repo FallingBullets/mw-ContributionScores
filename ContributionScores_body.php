@@ -43,17 +43,17 @@ class ContributionScores extends IncludableSpecialPage {
 		$nextPrefix = "WHERE";
 
 		$vars = array(
-			'rev_user',
-			'page_count' => 'COUNT(DISTINCT rev_page)',
-			'rev_count' => 'COUNT(rev_id)',
+			'r.rev_user',
+			'page_count' => 'COUNT(DISTINCT r.rev_page)',
+			'rev_count' => 'COUNT(r.rev_id)',
 		);
 		$conds = array();
-		$options = array( 'GROUP BY' => 'rev_user' );
+		$options = array( 'GROUP BY' => 'r.rev_user' );
 
 		if ( $days > 0 ) {
 			$date = time() - ( 60 * 60 * 24 * $days );
 			$dateString = $dbr->timestamp( $date );
-			$cond = "rev_timestamp > '$dateString'";
+			$cond = "r.rev_timestamp > '$dateString'";
 			$sqlWhere .= " {$nextPrefix} {$cond}";
 			$conds[] = $cond;
 			$nextPrefix = "AND";
@@ -65,23 +65,23 @@ class ContributionScores extends IncludableSpecialPage {
 		}
 
 		if ( $wgContribScoreIgnoreBlockedUsers ) {
-			$cond = "rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
+			$cond = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
 			$sqlWhere .= " {$nextPrefix} {$cond}";
 			$conds[] = $cond;
 			$nextPrefix = "AND";
 		}
 
 		if ( $wgContribScoreIgnoreBots ) {
-			$cond = "rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
+			$cond = "r.rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
 			$sqlWhere .= " {$nextPrefix} {$cond}";
 			$conds[] = $cond;
 		}
 
 		$options['ORDER BY'] = 'page_count DESC';
-		$sqlMostPages = $dbr->selectSQLText( 'revision', $vars, $conds, __METHOD__, $options);
+		$sqlMostPages = $dbr->selectSQLText( ['r' => 'revision'], $vars, $conds, __METHOD__, $options);
 
 		$options['ORDER BY'] = 'rev_count DESC';
-		$sqlMostRevs  = $dbr->selectSQLText( 'revision', $vars, $conds, __METHOD__, $options);
+		$sqlMostRevs = $dbr->selectSQLText( ['r' => 'revision'], $vars, $conds, __METHOD__, $options);
 
 		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count' );
 		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
