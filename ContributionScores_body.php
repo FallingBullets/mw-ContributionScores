@@ -83,7 +83,20 @@ class ContributionScores extends IncludableSpecialPage {
 		$options['ORDER BY'] = 'rev_count DESC';
 		$sqlMostRevs = $dbr->selectSQLText( ['r' => 'revision'], $vars, $conds, __METHOD__, $options);
 
-		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count' );
+		$tables = ['r' => 'revision', 's' => 'revision' ];
+		$vars = array(
+			'X' => 'r.rev_user',
+			'size_diff' => 'SUM( @a := CAST( r.rev_len AS SIGNED ) - CAST( s.rev_len AS SIGNED ) )',
+			'pos_diff' => 'SUM( CASE WHEN @a >0 THEN @a ELSE 0 END )',
+			'neg_diff' => 'SUM( CASE WHEN @a <0 THEN @a ELSE 0 END )',
+		);
+		$options['ORDER BY'] = 'size_diff DESC';
+		$joins = array(
+			's' => array( 'JOIN', 's.rev_id = r.rev_parent_id' )
+		);
+		$sqlDiffSizes = $dbr->selectSQLText($tables, $vars, $conds, __METHOD__, $options, $joins);
+
+		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count', 'size_diff', 'pos_diff', 'neg_diff' );
 		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
 		$options = [ 'ORDER BY' => 'wiki_rank DESC' ];
 		if ($limit > 0)
@@ -91,8 +104,15 @@ class ContributionScores extends IncludableSpecialPage {
 			$options['LIMIT'] = $limit;
 		}
 		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ], FALSE);
-		$tables = array( 'u' => 'user', 's' => "({$union})" );
-		$joins = array( 's' => array( 'JOIN', 'user_id = rev_user' ));
+		$tables = array(
+			'u' => 'user',
+			's' => "({$union})",
+			't' => "({$sqlDiffSizes})"
+		);
+		$joins = array(
+			't' => array( 'INNER JOIN', 'user_id = X' ),
+			's' => array( 'JOIN', 'user_id = rev_user' ),
+		);
 
 		$res = $dbr->select($tables, $vars, [], __METHOD__, $options, $joins);
 
