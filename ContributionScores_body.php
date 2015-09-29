@@ -79,8 +79,7 @@ class ContributionScores extends IncludableSpecialPage {
 		$sqlDiffSizes = $dbr->selectSQLText($tables, $vars, $conds, __METHOD__, $options, $joins);
 
 		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count', 'size_diff', 'pos_diff', 'neg_diff' );
-		$vars['wiki_rank'] = '(page_count + SQRT(rev_count - page_count) * 2)';
-		$options = [ 'ORDER BY' => 'wiki_rank DESC' ];
+		$options = [ 'ORDER BY' => 'rev_count DESC' ];
 		if ($limit > 0)
 		{
 			$options['LIMIT'] = $limit;
@@ -102,8 +101,6 @@ class ContributionScores extends IncludableSpecialPage {
 
 		$output = "<table class=\"wikitable contributionscores plainlinks{$sortable}\" >\n" .
 			"<tr class='header'>\n" .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-rank' )->text() ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-score' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-pages' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-changes' )->text() ) .
 			Html::element( 'th', array(), $this->msg( 'contributionscores-diff' ) ) .
@@ -112,7 +109,6 @@ class ContributionScores extends IncludableSpecialPage {
 			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributionscores-username' )->text() );
 
 		$altrow = '';
-		$user_rank = 1;
 
 		$lang = $this->getLanguage();
 		foreach ( $res as $row ) {
@@ -132,8 +128,6 @@ class ContributionScores extends IncludableSpecialPage {
 
 			$output .= Html::closeElement( 'tr' );
 			$output .= "<tr class='{$altrow}'>\n<td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( round( $user_rank, 0 ) ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( round( $row->wiki_rank, 0 ) ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->page_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->rev_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->size_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
@@ -153,8 +147,6 @@ class ContributionScores extends IncludableSpecialPage {
 			} else {
 				$altrow = '';
 			}
-
-			$user_rank++;
 		}
 		$output .= Html::closeElement( 'tr' );
 		$output .= Html::closeElement( 'table' );
