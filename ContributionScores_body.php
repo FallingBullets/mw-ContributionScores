@@ -49,11 +49,6 @@ class ContributionScores extends IncludableSpecialPage {
 			$conds[] = "r.rev_timestamp > '$dateString'";
 		}
 
-		if ($limit > 0)
-		{
-			$options['LIMIT'] = $limit;
-		}
-
 		if ( $wgContribScoreIgnoreBlockedUsers ) {
 			$ipBlocksTable = $dbr->tableName( 'ipblocks' );
 			$conds[] = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
