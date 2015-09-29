@@ -34,13 +34,6 @@ class ContributionScores extends IncludableSpecialPage {
 
 		$dbr = wfGetDB( DB_SLAVE );
 
-		$userTable = $dbr->tableName( 'user' );
-		$userGroupTable = $dbr->tableName( 'user_groups' );
-		$revTable = $dbr->tableName( 'revision' );
-		$ipBlocksTable = $dbr->tableName( 'ipblocks' );
-
-		$sqlWhere = "";
-		$nextPrefix = "WHERE";
 
 		$vars = array(
 			'r.rev_user',
@@ -53,10 +46,7 @@ class ContributionScores extends IncludableSpecialPage {
 		if ( $days > 0 ) {
 			$date = time() - ( 60 * 60 * 24 * $days );
 			$dateString = $dbr->timestamp( $date );
-			$cond = "r.rev_timestamp > '$dateString'";
-			$sqlWhere .= " {$nextPrefix} {$cond}";
-			$conds[] = $cond;
-			$nextPrefix = "AND";
+			$conds[] = "r.rev_timestamp > '$dateString'";
 		}
 
 		if ($limit > 0)
@@ -65,16 +55,13 @@ class ContributionScores extends IncludableSpecialPage {
 		}
 
 		if ( $wgContribScoreIgnoreBlockedUsers ) {
-			$cond = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
-			$sqlWhere .= " {$nextPrefix} {$cond}";
-			$conds[] = $cond;
-			$nextPrefix = "AND";
+			$ipBlocksTable = $dbr->tableName( 'ipblocks' );
+			$conds[] = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
 		}
 
 		if ( $wgContribScoreIgnoreBots ) {
-			$cond = "r.rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
-			$sqlWhere .= " {$nextPrefix} {$cond}";
-			$conds[] = $cond;
+			$userGroupTable = $dbr->tableName( 'user_groups' );
+			$conds[] = "r.rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
 		}
 
 		$options['ORDER BY'] = 'page_count DESC';
