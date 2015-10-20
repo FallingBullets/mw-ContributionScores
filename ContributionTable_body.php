@@ -17,23 +17,18 @@ class ContributionTable extends IncludableSpecialPage {
 		parent::__construct( 'ContributionTable' );
 	}
 
-	/// Generates a Contribution table for a given LIMIT and date range
 	/**
-	 * Function generates Contribution tables in HTML format (not wikiText)
+	 * Collects records within passed limits
 	 *
 	 * @param $days int Days in the past to run report for
 	 * @param $limit int Maximum number of users to return (default 50)
-	 * @param $title Title (default null)
-	 * @param $options array of options (default none; nosort/notools)
-	 * @return Html Table representing the requested Contribution Table.
+	 * @param $ignore_blocked ignore blocked users
+	 * @param $ignore_bots ignore bot accounts
+	 * @return table of data
 	 */
-	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
-		global $wgContribScoreIgnoreBots, $wgContribScoreIgnoreBlockedUsers, $wgContribScoresUseRealName;
-
-		$opts = explode( ',', strtolower( $options ) );
+	function GetContribs( $days, $limit = 50, $ignore_blocked = false, $ignore_bots = false ) {
 
 		$dbr = wfGetDB( DB_SLAVE );
-
 
 		$vars = array(
 			'r.rev_user',
@@ -46,15 +41,15 @@ class ContributionTable extends IncludableSpecialPage {
 		if ( $days > 0 ) {
 			$date = time() - ( 60 * 60 * 24 * $days );
 			$dateString = $dbr->timestamp( $date );
-			$conds[] = "r.rev_timestamp > '$dateString'";
+			$conds[] = "r.rev_timestamp > '{$dateString}'";
 		}
 
-		if ( $wgContribScoreIgnoreBlockedUsers ) {
+		if ( $ignore_blocked ) {
 			$ipBlocksTable = $dbr->tableName( 'ipblocks' );
 			$conds[] = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
 		}
 
-		if ( $wgContribScoreIgnoreBots ) {
+		if ( $ignore_bots ) {
 			$userGroupTable = $dbr->tableName( 'user_groups' );
 			$conds[] = "r.rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
 		}
@@ -95,18 +90,36 @@ class ContributionTable extends IncludableSpecialPage {
 			's' => array( 'JOIN', 'user_id = rev_user' ),
 		);
 
-		$res = $dbr->select($tables, $vars, [], __METHOD__, $options, $joins);
+		return $dbr->select($tables, $vars, [], __METHOD__, $options, $joins);
+	}
+
+	/// Generates a Contribution table for a given LIMIT and date range
+	/**
+	 * Function generates Contribution tables in HTML format (not wikiText)
+	 *
+	 * @param $days int Days in the past to run report for
+	 * @param $limit int Maximum number of users to return (default 50)
+	 * @param $title Title (default null)
+	 * @param $options array of options (default none; nosort/notools)
+	 * @return Html Table representing the requested Contribution Table.
+	 */
+	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
+		global $wgContribScoreIgnoreBots, $wgContribScoreIgnoreBlockedUsers, $wgContribScoresUseRealName;
+
+		$opts = explode( ',', strtolower( $options ) );
+
+		$res = $this->GetContribs($days, $limit, $wgContribScoreIgnoreBlockedUsers, $wgContribScoreIgnoreBots);
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : ' sortable';
 
 		$output = "<table class=\"wikitable contributiontable plainlinks{$sortable}\" >\n" .
 			"<tr class='header'>\n" .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-pages' )->text() ) .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-changes' )->text() ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-changes' ) ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-pages' ) ) .
 			Html::element( 'th', array(), $this->msg( 'contributiontable-diff' ) ) .
 			Html::element( 'th', array(), $this->msg( 'contributiontable-add' ) ) .
 			Html::element( 'th', array(), $this->msg( 'contributiontable-sub' ) ) .
-			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributiontable-username' )->text() );
+			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributiontable-username' ) );
 
 		$altrow = '';
 
@@ -128,8 +141,8 @@ class ContributionTable extends IncludableSpecialPage {
 
 			$output .= Html::closeElement( 'tr' );
 			$output .= "<tr class='{$altrow}'>\n<td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->page_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->rev_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
+				$lang->formatNum( $row->page_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->size_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->pos_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
 				$lang->formatNum( $row->neg_diff ) . "\n</td><td class='content'>" .
@@ -150,8 +163,6 @@ class ContributionTable extends IncludableSpecialPage {
 		}
 		$output .= Html::closeElement( 'tr' );
 		$output .= Html::closeElement( 'table' );
-
-		$dbr->freeResult( $res );
 
 		if ( !empty( $title ) )
 			$output = Html::rawElement( 'table',
