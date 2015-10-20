@@ -110,16 +110,19 @@ class ContributionTable extends IncludableSpecialPage {
 
 		$res = $this->GetContribs($days, $limit, $wgContribScoreIgnoreBlockedUsers, $wgContribScoreIgnoreBots);
 
-		$sortable = in_array( 'nosort', $opts ) ? '' : ' sortable';
+		$sortable = in_array( 'nosort', $opts ) ? '' : 'sortable';
 
-		$output = "<table class=\"wikitable contributiontable plainlinks{$sortable}\" >\n" .
-			"<tr class='header'>\n" .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-changes' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-pages' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-diff' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-add' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributiontable-sub' ) ) .
-			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributiontable-username' ) );
+		$output = Html::openElement('table', [ 'class' => "wikitable contributiontable plainlinks {$sortable}" ]);
+		// construct row
+		$row = Html::rawElement('tr', ['header'],
+			Html::element('th', [], $this->msg( 'contributiontable-changes' ) ) .
+			Html::element('th', [], $this->msg( 'contributiontable-pages' ) ) .
+			Html::element('th', [], $this->msg( 'contributiontable-diff' ) ) .
+			Html::element('th', [], $this->msg( 'contributiontable-add' ) ) .
+			Html::element('th', [], $this->msg( 'contributiontable-sub' ) ) .
+			Html::element('th', ['style' => 'width: 100%;'], $this->msg( 'contributiontable-username' ) )
+			);
+		$output .= $row;
 
 		$altrow = '';
 
@@ -138,50 +141,47 @@ class ContributionTable extends IncludableSpecialPage {
 					$row->user_name
 				);
 			}
-
-			$output .= Html::closeElement( 'tr' );
-			$output .= "<tr class='{$altrow}'>\n<td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->rev_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->page_count ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->size_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->pos_diff ) . "\n</td><td class='content' style='padding-right:10px;text-align:right;'>" .
-				$lang->formatNum( $row->neg_diff ) . "\n</td><td class='content'>" .
-				$userLink;
-
 			# Option to not display user tools
 			if ( !in_array( 'notools', $opts ) ) {
-				$output .= Linker::userToolLinks( $row->user_id, $row->user_name );
+				$userLink .= Linker::userToolLinks( $row->user_id, $row->user_name );
 			}
 
-			$output .= Html::closeElement( 'td' ) . "\n";
+			// construct row
+			$attr = [ 'style' => 'padding-right: 10px; text-align: right;' ];
+			$output .= Html::rawElement('tr', ['class' => "{$altrow}"],
+				Html::element('td', $attr, $lang->formatNum( $row->rev_count ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->page_count ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->size_diff ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->pos_diff ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->neg_diff ) ) .
+				Html::rawElement('td', [], $userLink )
+				);
 
 			if ( $altrow == '' && empty( $sortable ) ) {
-				$altrow = 'odd ';
+				$altrow = 'odd';
 			} else {
 				$altrow = '';
 			}
 		}
-		$output .= Html::closeElement( 'tr' );
 		$output .= Html::closeElement( 'table' );
 
-		if ( !empty( $title ) )
-			$output = Html::rawElement( 'table',
-				array(
-					'style' => 'border-spacing: 0; padding: 0',
-					'class' => 'contributiontable-wrapper',
-					'lang' => htmlspecialchars( $lang->getCode()),
-					'dir' => $lang->getDir()
-				),
-				"\n" .
-					"<tr>\n" .
-					"<td style='padding: 0px;'>{$title}</td>\n" .
-					"</tr>\n" .
-					"<tr>\n" .
-					"<td style='padding: 0px;'>{$output}</td>\n" .
-					"</tr>\n"
-			);
-
-		return $output;
+		if ( empty( $title ) )
+			return $output;
+		// wrap in 'titled' table
+		return Html::rawElement( 'table',
+			array(
+				'style' => 'border-spacing: 0; padding: 0',
+				'class' => 'contributiontable-wrapper',
+				'lang' => htmlspecialchars( $lang->getCode()),
+				'dir' => $lang->getDir()
+			),
+			Html::rawElement('tr', [],
+				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $title)
+				) .
+			Html::rawElement('tr', [],
+				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $output)
+				)
+		);
 	}
 
 	function execute( $par ) {
@@ -237,7 +237,7 @@ class ContributionTable extends IncludableSpecialPage {
 			if ($limit > 0) {
 				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $limit )->text();
 			}
-			$title = Xml::element( 'h4', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
+			$title = Html::element( 'h4', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
 		}
 
 		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
@@ -270,7 +270,7 @@ class ContributionTable extends IncludableSpecialPage {
 			if ($revs > 0) {
 				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $revs )->text();
 			}
-			$title = Xml::element( 'h2', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
+			$title = Html::element( 'h2', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
 			$out->addHTML( $title );
 			$out->addHTML( $this->genContributionScoreTable( $days, $revs ) );
 		}
