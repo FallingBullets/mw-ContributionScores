@@ -230,14 +230,14 @@ class ContributionTable extends IncludableSpecialPage {
 		if (stripos($options, 'notitle') === FALSE)
 		{
 			if ( $days > 0 ) {
-				$reportTitle = $this->msg( 'contributiontable-days' )->numParams( $days )->text();
+				$title = $this->msg( 'contributiontable-days' )->numParams($days);
 			} else {
-				$reportTitle = $this->msg( 'contributiontable-allrevisions' )->text();
+				$title = $this->msg( 'contributiontable-allrevisions' );
 			}
 			if ($limit > 0) {
-				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $limit )->text();
+				$title .= " " . $this->msg( 'contributiontable-top' )->numParams($limit);
 			}
-			$title = Html::element( 'h4', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
+			$title = Html::element('h4', array( 'class' => 'contributiontable-title' ), $title );
 		}
 
 		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
@@ -261,18 +261,18 @@ class ContributionTable extends IncludableSpecialPage {
 		$out->addWikiMsg( 'contributiontable-info' );
 
 		foreach ( $wgContribScoreReports as $scoreReport ) {
-			list( $days, $revs ) = $scoreReport;
+			list( $days, $limit ) = $scoreReport;
 			if ( $days > 0 ) {
-				$reportTitle = $this->msg( 'contributiontable-days' )->numParams( $days )->text();
+				$title = $this->msg( 'contributiontable-days' )->numParams($days);
 			} else {
-				$reportTitle = $this->msg( 'contributiontable-allrevisions' )->text();
+				$title = $this->msg( 'contributiontable-allrevisions' );
 			}
-			if ($revs > 0) {
-				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $revs )->text();
+			if ($limit > 0) {
+				$title .= " " . $this->msg( 'contributiontable-top' )->numParams($limit);
 			}
-			$title = Html::element( 'h2', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
+			$title = Html::element('h2', array( 'class' => 'contributiontable-title' ), $title);
 			$out->addHTML( $title );
-			$out->addHTML( $this->genContributionScoreTable( $days, $revs ) );
+			$out->addHTML( $this->genContributionScoreTable( $days, $limit ) );
 		}
 	}
 }
