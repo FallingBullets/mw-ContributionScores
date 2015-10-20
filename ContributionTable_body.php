@@ -1,9 +1,9 @@
 <?php
 /** \file
-* \brief Contains code for the ContributionScores Class (extends SpecialPage).
+* \brief Contains code for the ContributionTable Class (extends SpecialPage).
 */
 
-/// Special page class for the Contribution Scores extension
+/// Special page class for the Contribution Table extension
 /**
  * Special page that generates a list of wiki contributors based
  * on edit diversity (unique pages edited) and edit volume (total
@@ -12,20 +12,20 @@
  * @ingroup Extensions
  * @author Tim Laqua <t.laqua@gmail.com>
  */
-class ContributionScores extends IncludableSpecialPage {
+class ContributionTable extends IncludableSpecialPage {
 	public function __construct() {
-		parent::__construct( 'ContributionScores' );
+		parent::__construct( 'ContributionTable' );
 	}
 
-	/// Generates a "Contribution Scores" table for a given LIMIT and date range
+	/// Generates a Contribution table for a given LIMIT and date range
 	/**
-	 * Function generates Contribution Scores tables in HTML format (not wikiText)
+	 * Function generates Contribution tables in HTML format (not wikiText)
 	 *
 	 * @param $days int Days in the past to run report for
 	 * @param $limit int Maximum number of users to return (default 50)
 	 * @param $title Title (default null)
 	 * @param $options array of options (default none; nosort/notools)
-	 * @return Html Table representing the requested Contribution Scores.
+	 * @return Html Table representing the requested Contribution Table.
 	 */
 	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
 		global $wgContribScoreIgnoreBots, $wgContribScoreIgnoreBlockedUsers, $wgContribScoresUseRealName;
@@ -99,14 +99,14 @@ class ContributionScores extends IncludableSpecialPage {
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : ' sortable';
 
-		$output = "<table class=\"wikitable contributionscores plainlinks{$sortable}\" >\n" .
+		$output = "<table class=\"wikitable contributiontable plainlinks{$sortable}\" >\n" .
 			"<tr class='header'>\n" .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-pages' )->text() ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-changes' )->text() ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-diff' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-add' ) ) .
-			Html::element( 'th', array(), $this->msg( 'contributionscores-sub' ) ) .
-			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributionscores-username' )->text() );
+			Html::element( 'th', array(), $this->msg( 'contributiontable-pages' )->text() ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-changes' )->text() ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-diff' ) ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-add' ) ) .
+			Html::element( 'th', array(), $this->msg( 'contributiontable-sub' ) ) .
+			Html::element( 'th', array('style' => 'width: 100%;'), $this->msg( 'contributiontable-username' )->text() );
 
 		$altrow = '';
 
@@ -157,7 +157,7 @@ class ContributionScores extends IncludableSpecialPage {
 			$output = Html::rawElement( 'table',
 				array(
 					'style' => 'border-spacing: 0; padding: 0',
-					'class' => 'contributionscores-wrapper',
+					'class' => 'contributiontable-wrapper',
 					'lang' => htmlspecialchars( $lang->getCode()),
 					'dir' => $lang->getDir()
 				),
@@ -219,14 +219,14 @@ class ContributionScores extends IncludableSpecialPage {
 		if (stripos($options, 'notitle') === FALSE)
 		{
 			if ( $days > 0 ) {
-				$reportTitle = $this->msg( 'contributionscores-days' )->numParams( $days )->text();
+				$reportTitle = $this->msg( 'contributiontable-days' )->numParams( $days )->text();
 			} else {
-				$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
+				$reportTitle = $this->msg( 'contributiontable-allrevisions' )->text();
 			}
 			if ($limit > 0) {
-				$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $limit )->text();
+				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $limit )->text();
 			}
-			$title = Xml::element( 'h4', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
+			$title = Xml::element( 'h4', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
 		}
 
 		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
@@ -247,19 +247,19 @@ class ContributionScores extends IncludableSpecialPage {
 		}
 
 		$out = $this->getOutput();
-		$out->addWikiMsg( 'contributionscores-info' );
+		$out->addWikiMsg( 'contributiontable-info' );
 
 		foreach ( $wgContribScoreReports as $scoreReport ) {
 			list( $days, $revs ) = $scoreReport;
 			if ( $days > 0 ) {
-				$reportTitle = $this->msg( 'contributionscores-days' )->numParams( $days )->text();
+				$reportTitle = $this->msg( 'contributiontable-days' )->numParams( $days )->text();
 			} else {
-				$reportTitle = $this->msg( 'contributionscores-allrevisions' )->text();
+				$reportTitle = $this->msg( 'contributiontable-allrevisions' )->text();
 			}
 			if ($revs > 0) {
-				$reportTitle .= " " . $this->msg( 'contributionscores-top' )->numParams( $revs )->text();
+				$reportTitle .= " " . $this->msg( 'contributiontable-top' )->numParams( $revs )->text();
 			}
-			$title = Xml::element( 'h2', array( 'class' => 'contributionscores-title' ), $reportTitle ) . "\n";
+			$title = Xml::element( 'h2', array( 'class' => 'contributiontable-title' ), $reportTitle ) . "\n";
 			$out->addHTML( $title );
 			$out->addHTML( $this->genContributionScoreTable( $days, $revs ) );
 		}

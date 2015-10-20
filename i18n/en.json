@@ -1,21 +1,21 @@
 {
     "@metadata": {
-        "authors": []
+        "authors": [
+			"fbstj"
+		]
     },
-    "contributionscores": "Contribution scores",
-    "contributionscores-desc": "Polls the wiki database for highest [[Special:ContributionScores|user contribution volume]]",
-    "contributionscores-info": "The score primarily measures unique pages edited, with consideration for high edit volume.",
-    "contributionscores-top": "(Top $1)",
-    "contributionscores-days": "Last {{PLURAL:$1|day|$1 days}}",
-    "contributionscores-allrevisions": "All time",
-    "contributionscores-score": "Score",
-    "contributionscores-rank": "Rank",
-    "contributionscores-pages": "Pages",
-    "contributionscores-changes": "Changes",
-    "contributionscores-diff": "Total Changes",
-    "contributionscores-add": "Additions",
-    "contributionscores-sub": "Removals",
-    "contributionscores-username": "Username",
-    "contributionscores-invalidusername": "Invalid username",
-    "contributionscores-invalidmetric": "Invalid metric"
+    "contributiontable": "Contribution tables",
+    "contributiontable-desc": "Polls the wiki database for highest [[Special:ContributionTable|user contribution volume]]",
+    "contributiontable-info": "Tables of contribution ammounts by users.",
+    "contributiontable-top": "(Top $1)",
+    "contributiontable-days": "Last {{PLURAL:$1|day|$1 days}}",
+    "contributiontable-allrevisions": "All time",
+    "contributiontable-changes": "Edits",
+    "contributiontable-pages": "Pages",
+    "contributiontable-diff": "Bytes",
+    "contributiontable-add": "Additions",
+    "contributiontable-sub": "Removals",
+    "contributiontable-username": "Username",
+    "contributiontable-invalidusername": "Invalid username",
+    "contributiontable-invalidmetric": "Invalid metric"
 }

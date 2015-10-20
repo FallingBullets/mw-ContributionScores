@@ -11,250 +11,250 @@ $specialPageAliases = array();
 
 /** English (English) */
 $specialPageAliases['en'] = array(
-	'ContributionScores' => array( 'ContributionScores' ),
+	'ContributionTable' => array( 'ContributionTable' ),
 );
 
 /** Arabic (العربية) */
 $specialPageAliases['ar'] = array(
-	'ContributionScores' => array( 'نتائج_المساهمة' ),
+	'ContributionTable' => array( 'نتائج_المساهمة' ),
 );
 
 /** Aramaic (ܐܪܡܝܐ) */
 $specialPageAliases['arc'] = array(
-	'ContributionScores' => array( 'ܦܠܛ̈ܐ_ܕܫܘܬܦܘ̈ܬܐ' ),
+	'ContributionTable' => array( 'ܦܠܛ̈ܐ_ܕܫܘܬܦܘ̈ܬܐ' ),
 );
 
 /** Egyptian Spoken Arabic (مصرى) */
 $specialPageAliases['arz'] = array(
-	'ContributionScores' => array( 'نتايج_المساهمه' ),
+	'ContributionTable' => array( 'نتايج_المساهمه' ),
 );
 
 /** Assamese (অসমীয়া) */
 $specialPageAliases['as'] = array(
-	'ContributionScores' => array( 'বৰঙনিৰ_মূল্যায়ন' ),
+	'ContributionTable' => array( 'বৰঙনিৰ_মূল্যায়ন' ),
 );
 
 /** Avaric (авар) */
 $specialPageAliases['av'] = array(
-	'ContributionScores' => array( 'Очки_вклада' ),
+	'ContributionTable' => array( 'Очки_вклада' ),
 );
 
 /** Bashkir (башҡортса) */
 $specialPageAliases['ba'] = array(
-	'ContributionScores' => array( 'Өлөш_мәрәйҙәре' ),
+	'ContributionTable' => array( 'Өлөш_мәрәйҙәре' ),
 );
 
 /** Western Balochi (بلوچی رخشانی) */
 $specialPageAliases['bgn'] = array(
-	'ContributionScores' => array( 'شراکتانی_امتیاز_ئان' ),
+	'ContributionTable' => array( 'شراکتانی_امتیاز_ئان' ),
 );
 
 /** Banjar (Bahasa Banjar) */
 $specialPageAliases['bjn'] = array(
-	'ContributionScores' => array( 'Skor_sumbangan' ),
+	'ContributionTable' => array( 'Skor_sumbangan' ),
 );
 
 /** Breton (brezhoneg) */
 $specialPageAliases['br'] = array(
-	'ContributionScores' => array( 'Skor_Degasadennoù' ),
+	'ContributionTable' => array( 'Skor_Degasadennoù' ),
 );
 
 /** Bosnian (bosanski) */
 $specialPageAliases['bs'] = array(
-	'ContributionScores' => array( 'DoprinosiBodovi' ),
+	'ContributionTable' => array( 'DoprinosiBodovi' ),
 );
 
 /** Min Dong Chinese (Mìng-dĕ̤ng-ngṳ̄) */
 $specialPageAliases['cdo'] = array(
-	'ContributionScores' => array( '貢獻分數' ),
+	'ContributionTable' => array( '貢獻分數' ),
 );
 
 /** German (Deutsch) */
 $specialPageAliases['de'] = array(
-	'ContributionScores' => array( 'Beitragspunkte' ),
+	'ContributionTable' => array( 'Beitragspunkte' ),
 );
 
 /** Zazaki (Zazaki) */
 $specialPageAliases['diq'] = array(
-	'ContributionScores' => array( 'SqoréDekerdışan' ),
+	'ContributionTable' => array( 'SqoréDekerdışan' ),
 );
 
 /** Esperanto (Esperanto) */
 $specialPageAliases['eo'] = array(
-	'ContributionScores' => array( 'Poentaro_de_kontribuoj', 'Kontribuatingoj' ),
+	'ContributionTable' => array( 'Poentaro_de_kontribuoj', 'Kontribuatingoj' ),
 );
 
 /** Estonian (eesti) */
 $specialPageAliases['et'] = array(
-	'ContributionScores' => array( 'Kaastööpunktid' ),
+	'ContributionTable' => array( 'Kaastööpunktid' ),
 );
 
 /** Persian (فارسی) */
 $specialPageAliases['fa'] = array(
-	'ContributionScores' => array( 'امتیازهای_مشارکت' ),
+	'ContributionTable' => array( 'امتیازهای_مشارکت' ),
 );
 
 /** Finnish (suomi) */
 $specialPageAliases['fi'] = array(
-	'ContributionScores' => array( 'Muokkauspisteet' ),
+	'ContributionTable' => array( 'Muokkauspisteet' ),
 );
 
 /** Galician (galego) */
 $specialPageAliases['gl'] = array(
-	'ContributionScores' => array( 'Puntuación_das_contribucións' ),
+	'ContributionTable' => array( 'Puntuación_das_contribucións' ),
 );
 
 /** Hebrew (עברית) */
 $specialPageAliases['he'] = array(
-	'ContributionScores' => array( 'דירוג_תרומות' ),
+	'ContributionTable' => array( 'דירוג_תרומות' ),
 );
 
 /** Haitian (Kreyòl ayisyen) */
 $specialPageAliases['ht'] = array(
-	'ContributionScores' => array( 'PwentajKontribisyon' ),
+	'ContributionTable' => array( 'PwentajKontribisyon' ),
 );
 
 /** Hungarian (magyar) */
 $specialPageAliases['hu'] = array(
-	'ContributionScores' => array( 'Szerkesztési_pontok' ),
+	'ContributionTable' => array( 'Szerkesztési_pontok' ),
 );
 
 /** Interlingua (interlingua) */
 $specialPageAliases['ia'] = array(
-	'ContributionScores' => array( 'Scores_de_contributiones' ),
+	'ContributionTable' => array( 'Scores_de_contributiones' ),
 );
 
 /** Indonesian (Bahasa Indonesia) */
 $specialPageAliases['id'] = array(
-	'ContributionScores' => array( 'Skor_kontribusi', 'SkorKontribusi' ),
+	'ContributionTable' => array( 'Skor_kontribusi', 'SkorKontribusi' ),
 );
 
 /** Italian (italiano) */
 $specialPageAliases['it'] = array(
-	'ContributionScores' => array( 'PunteggiContributi' ),
+	'ContributionTable' => array( 'PunteggiContributi' ),
 );
 
 /** Japanese (日本語) */
 $specialPageAliases['ja'] = array(
-	'ContributionScores' => array( '貢献スコア', '貢献得点' ),
+	'ContributionTable' => array( '貢献スコア', '貢献得点' ),
 );
 
 /** Khmer (ភាសាខ្មែរ) */
 $specialPageAliases['km'] = array(
-	'ContributionScores' => array( 'ពិន្ទុអ្នករួមចំណែក' ),
+	'ContributionTable' => array( 'ពិន្ទុអ្នករួមចំណែក' ),
 );
 
 /** Korean (한국어) */
 $specialPageAliases['ko'] = array(
-	'ContributionScores' => array( '기여점수' ),
+	'ContributionTable' => array( '기여점수' ),
 );
 
 /** Colognian (Ripoarisch) */
 $specialPageAliases['ksh'] = array(
-	'ContributionScores' => array( 'MetmaacherZahle' ),
+	'ContributionTable' => array( 'MetmaacherZahle' ),
 );
 
 /** Ladino (Ladino) */
 $specialPageAliases['lad'] = array(
-	'ContributionScores' => array( 'Resultados_de_ajustamientos' ),
+	'ContributionTable' => array( 'Resultados_de_ajustamientos' ),
 );
 
 /** Luxembourgish (Lëtzebuergesch) */
 $specialPageAliases['lb'] = array(
-	'ContributionScores' => array( 'Score_vun_de_Kontributiounen' ),
+	'ContributionTable' => array( 'Score_vun_de_Kontributiounen' ),
 );
 
 /** Minangkabau (Baso Minangkabau) */
 $specialPageAliases['min'] = array(
-	'ContributionScores' => array( 'SkorJariah' ),
+	'ContributionTable' => array( 'SkorJariah' ),
 );
 
 /** Macedonian (македонски) */
 $specialPageAliases['mk'] = array(
-	'ContributionScores' => array( 'БодувањеНаПридонесите' ),
+	'ContributionTable' => array( 'БодувањеНаПридонесите' ),
 );
 
 /** Malayalam (മലയാളം) */
 $specialPageAliases['ml'] = array(
-	'ContributionScores' => array( 'സേവനസ്കോറുകൾ' ),
+	'ContributionTable' => array( 'സേവനസ്കോറുകൾ' ),
 );
 
 /** Marathi (मराठी) */
 $specialPageAliases['mr'] = array(
-	'ContributionScores' => array( 'योगदानप्राविण्य' ),
+	'ContributionTable' => array( 'योगदानप्राविण्य' ),
 );
 
 /** Norwegian Bokmål (norsk bokmål) */
 $specialPageAliases['nb'] = array(
-	'ContributionScores' => array( 'Bidragspoeng' ),
+	'ContributionTable' => array( 'Bidragspoeng' ),
 );
 
 /** Low Saxon (Netherlands) (Nedersaksies) */
 $specialPageAliases['nds-nl'] = array(
-	'ContributionScores' => array( 'Biedragentelling' ),
+	'ContributionTable' => array( 'Biedragentelling' ),
 );
 
 /** Dutch (Nederlands) */
 $specialPageAliases['nl'] = array(
-	'ContributionScores' => array( 'Gebruikersscores', 'Bijdragenscores' ),
+	'ContributionTable' => array( 'Gebruikersscores', 'Bijdragenscores' ),
 );
 
 /** Polish (polski) */
 $specialPageAliases['pl'] = array(
-	'ContributionScores' => array( 'Punkty_za_edycje' ),
+	'ContributionTable' => array( 'Punkty_za_edycje' ),
 );
 
 /** Russian (русский) */
 $specialPageAliases['ru'] = array(
-	'ContributionScores' => array( 'Очки_вклада' ),
+	'ContributionTable' => array( 'Очки_вклада' ),
 );
 
 /** Sanskrit (संस्कृतम्) */
 $specialPageAliases['sa'] = array(
-	'ContributionScores' => array( 'योगदानप्राप्ताङ्क' ),
+	'ContributionTable' => array( 'योगदानप्राप्ताङ्क' ),
 );
 
 /** Sicilian (sicilianu) */
 $specialPageAliases['scn'] = array(
-	'ContributionScores' => array( 'PunteggiContribuzione' ),
+	'ContributionTable' => array( 'PunteggiContribuzione' ),
 );
 
 /** Slovak (slovenčina) */
 $specialPageAliases['sk'] = array(
-	'ContributionScores' => array( 'SkórePríspevkov' ),
+	'ContributionTable' => array( 'SkórePríspevkov' ),
 );
 
 /** Swedish (svenska) */
 $specialPageAliases['sv'] = array(
-	'ContributionScores' => array( 'Bidragspoäng' ),
+	'ContributionTable' => array( 'Bidragspoäng' ),
 );
 
 /** Thai (ไทย) */
 $specialPageAliases['th'] = array(
-	'ContributionScores' => array( 'คะแนนการเขียน' ),
+	'ContributionTable' => array( 'คะแนนการเขียน' ),
 );
 
 /** Tagalog (Tagalog) */
 $specialPageAliases['tl'] = array(
-	'ContributionScores' => array( 'Mga_puntos_ng_ambag' ),
+	'ContributionTable' => array( 'Mga_puntos_ng_ambag' ),
 );
 
 /** Turkish (Türkçe) */
 $specialPageAliases['tr'] = array(
-	'ContributionScores' => array( 'KatkıSkorları', 'KatkıPuanları' ),
+	'ContributionTable' => array( 'KatkıSkorları', 'KatkıPuanları' ),
 );
 
 /** Ukrainian (українська) */
 $specialPageAliases['uk'] = array(
-	'ContributionScores' => array( 'Очки_внеску' ),
+	'ContributionTable' => array( 'Очки_внеску' ),
 );
 
 /** Simplified Chinese (中文（简体）‎) */
 $specialPageAliases['zh-hans'] = array(
-	'ContributionScores' => array( '贡献得分' ),
+	'ContributionTable' => array( '贡献得分' ),
 );
 
 /** Traditional Chinese (中文（繁體）‎) */
 $specialPageAliases['zh-hant'] = array(
-	'ContributionScores' => array( '貢獻分數' ),
+	'ContributionTable' => array( '貢獻分數' ),
 );

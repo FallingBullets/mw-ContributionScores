@@ -5,22 +5,22 @@
 
 # Not a valid entry point, skip unless MEDIAWIKI is defined
 if ( !defined( 'MEDIAWIKI' ) ) {
-	echo "Contribution Scores extension";
+	echo "Contribution Table extension";
 	exit( 1 );
 }
 
 $wgExtensionCredits['specialpage'][] = array(
 	'path' => __FILE__,
-	'name' => 'Contribution Scores',
+	'name' => 'Contribution Tabke',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Contribution_Scores',
-	'author' => 'Tim Laqua',
-	'descriptionmsg' => 'contributionscores-desc',
+	'author' => 'Joe ST',
+	'descriptionmsg' => 'contributiontable-desc',
 	'version' => '1.17.0'
 );
 
 $dir = dirname( __FILE__ ) . '/';
 
-define( 'CONTRIBUTIONSCORES_MAXINCLUDELIMIT', 50 );
+define( 'CONTRIBUTIONTABLE_MAXINCLUDELIMIT', 50 );
 $wgContribScoreReports = null;
 
 // These settings can be overridden in LocalSettings.php.
@@ -29,14 +29,14 @@ $wgContribScoreIgnoreBots = false; // Set to true to exclude blocked users from 
 $wgContribScoresUseRealName = false; // Set to true to use real user names when available. Only for MediaWiki 1.19 and later.
 $wgContribScoreDisableCache = false; // Set to true to disable cache for parser function and inclusion of table.
 
-$wgAutoloadClasses['ContributionScores'] = $dir . 'ContributionScores_body.php';
-$wgSpecialPages['ContributionScores'] = 'ContributionScores';
-$wgSpecialPageGroups['ContributionScores'] = 'wiki';
+$wgAutoloadClasses['ContributionTable'] = $dir . 'ContributionTable_body.php';
+$wgSpecialPages['ContributionTable'] = 'ContributionTable';
+$wgSpecialPageGroups['ContributionTable'] = 'wiki';
 
-$wgMessagesDirs['ContributionScores'] = __DIR__ . '/i18n';
-$wgExtensionMessagesFiles['ContributionScores'] = $dir . 'ContributionScores.i18n.php';
-$wgExtensionMessagesFiles['ContributionScoresAlias'] = $dir . 'ContributionScores.alias.php';
-$wgExtensionMessagesFiles['ContributionScoresMagic'] = $dir . 'ContributionScores.i18n.magic.php';
+$wgMessagesDirs['ContributionTable'] = __DIR__ . '/i18n';
+$wgExtensionMessagesFiles['ContributionTable'] = $dir . 'ContributionTable.i18n.php';
+$wgExtensionMessagesFiles['ContributionTableAlias'] = $dir . 'ContributionTable.alias.php';
+$wgExtensionMessagesFiles['ContributionTableMagic'] = $dir . 'ContributionTable.i18n.magic.php';
 
 $wgHooks['ParserFirstCallInit'][] = 'efContributionScores_Setup';
 
