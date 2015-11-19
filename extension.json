@@ -1,0 +1,32 @@
+{
+	"name": "Contribution Table",
+	"author": "Joe ST",
+	"url": "https://github.com/fbstj/mw-ContributionTable",
+	"descriptionmsg": "contributiontable-desc",
+	"version": "2015.11",
+	"license-name": "MIT",
+	"type": "specialpage",
+	"requires": {
+		"MediaWiki": ">= 1.25.0"
+	},
+	"SpecialPages": {
+		"ContributionTable": "ContributionTable"
+	},
+	"AutoloadClasses": {
+		"ContributionTable": "ContributionTable_body.php"
+	},
+	"MessagesDirs": {
+		"ContributionTable": [
+			"i18n"
+		]
+	},
+	"config": {
+		"ContribScoreReports": null,
+		"ContribScoreIgnoreBlockedUsers": false,
+		"ContribScoreIgnoreBots": false,
+		"ContribScoreUseRealName": false,
+		"ContribScoreDisabelCache": false,
+		"ContribScoreReports": [ [7,-1], [30,-1], [0,50] ]
+	},
+	"manifest_version": 1
+}

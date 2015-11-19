@@ -249,15 +249,12 @@ class ContributionTable extends IncludableSpecialPage {
 	function showPage() {
 		global $wgContribScoreReports;
 
-		if ( !is_array( $wgContribScoreReports ) ) {
-			$wgContribScoreReports = array(
-				array( 7, -1 ),
-				array( 30, -1 ),
-				array( 0, 50 )
-			);
+		$out = $this->getOutput();
+		if ( is_null($wgContribScoreReports) ||  !is_array( $wgContribScoreReports ) || empty( $wgContribScoreReports ) ) {
+			$out->addWikiMsg( 'contributiontable-reporterror' );
+			return;
 		}
 
-		$out = $this->getOutput();
 		$out->addWikiMsg( 'contributiontable-info' );
 
 		foreach ( $wgContribScoreReports as $scoreReport ) {
@@ -274,5 +271,9 @@ class ContributionTable extends IncludableSpecialPage {
 			$out->addHTML( $title );
 			$out->addHTML( $this->genContributionScoreTable( $days, $limit ) );
 		}
+	}
+
+	protected function getGroupName() {
+		return 'wiki';
 	}
 }

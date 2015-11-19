@@ -1,88 +1,15 @@
 <?php
-/** \file
-* \brief Contains setup code for the Contribution Scores Extension.
-*/
 
-# Not a valid entry point, skip unless MEDIAWIKI is defined
-if ( !defined( 'MEDIAWIKI' ) ) {
-	echo "Contribution Table extension";
-	exit( 1 );
-}
-
-$wgExtensionCredits['specialpage'][] = array(
-	'path' => __FILE__,
-	'name' => 'Contribution Tabke',
-	'url' => 'https://www.mediawiki.org/wiki/Extension:Contribution_Scores',
-	'author' => 'Joe ST',
-	'descriptionmsg' => 'contributiontable-desc',
-	'version' => '1.17.0'
-);
-
-$dir = dirname( __FILE__ ) . '/';
-
-define( 'CONTRIBUTIONTABLE_MAXINCLUDELIMIT', 50 );
-$wgContribScoreReports = null;
-
-// These settings can be overridden in LocalSettings.php.
-$wgContribScoreIgnoreBlockedUsers = false; // Set to true to exclude bots from the reporting.
-$wgContribScoreIgnoreBots = false; // Set to true to exclude blocked users from the reporting.
-$wgContribScoresUseRealName = false; // Set to true to use real user names when available. Only for MediaWiki 1.19 and later.
-$wgContribScoreDisableCache = false; // Set to true to disable cache for parser function and inclusion of table.
-
-$wgAutoloadClasses['ContributionTable'] = $dir . 'ContributionTable_body.php';
-$wgSpecialPages['ContributionTable'] = 'ContributionTable';
-$wgSpecialPageGroups['ContributionTable'] = 'wiki';
-
-$wgMessagesDirs['ContributionTable'] = __DIR__ . '/i18n';
-$wgExtensionMessagesFiles['ContributionTable'] = $dir . 'ContributionTable.i18n.php';
-$wgExtensionMessagesFiles['ContributionTableAlias'] = $dir . 'ContributionTable.alias.php';
-$wgExtensionMessagesFiles['ContributionTableMagic'] = $dir . 'ContributionTable.i18n.magic.php';
-
-$wgHooks['ParserFirstCallInit'][] = 'efContributionScores_Setup';
-
-function efContributionScores_Setup( &$parser ) {
-	$parser->setFunctionHook( 'cscore', 'efContributionScores_Render' );
-	return true;
-}
-
-function efContributionScores_Render( &$parser, $usertext, $metric = 'score' ) {
-	global $wgContribScoreDisableCache;
-
-	if ( $wgContribScoreDisableCache ) {
-		$parser->disableCache();
-	}
-
-	$user = User::newFromName( $usertext );
-	$dbr = wfGetDB( DB_SLAVE );
-
-	if ( $user instanceof User && $user->isLoggedIn() ) {
-		global $wgLang;
-
-		if ( $metric == 'score' ) {
-			$res = $dbr->select( 'revision',
-									'COUNT(DISTINCT rev_page)+SQRT(COUNT(rev_id)-COUNT(DISTINCT rev_page))*2 AS wiki_rank',
-									array( 'rev_user' => $user->getID() ) );
-			$row = $dbr->fetchObject( $res );
-			$output = $wgLang->formatNum( round( $row->wiki_rank, 0 ) );
-		} elseif ( $metric == 'changes' ) {
-			$res = $dbr->select( 'revision',
-									'COUNT(rev_id) AS rev_count',
-									array( 'rev_user' => $user->getID() ) );
-			$row = $dbr->fetchObject( $res );
-			$output = $wgLang->formatNum( $row->rev_count );
-
-		} elseif ( $metric == 'pages' ) {
-			$res = $dbr->select( 'revision',
-									'COUNT(DISTINCT rev_page) AS page_count',
-									array( 'rev_user' => $user->getID() ) );
-			$row = $dbr->fetchObject( $res );
-			$output = $wgLang->formatNum( $row->page_count );
-		} else {
-			$output = wfMessage( 'contributionscores-invalidmetric' )->text();
-		}
-	} else {
-		$output = wfMessage( 'contributionscores-invalidusername' )->text();
-	}
-
-	return $parser->insertStripItem( $output, $parser->mStripState );
+if ( function_exists( 'wfLoadExtension' ) ) {
+	wfLoadExtension( 'ContributionTable' );
+	// Keep i18n globals so mergeMessageFileList.php doesn't break
+	$wgMessagesDirs['ContributionTable'] = __DIR__ . '/i18n';
+	$wgExtensionMessagesFiles['ContributionTableAlias'] = __DIR__ . '/ContributionTable.alias.php';
+	/* wfWarn(
+		'Deprecated PHP entry point used for ContributionTable extension. Please use wfLoadExtension instead, ' .
+		'see https://www.mediawiki.org/wiki/Extension_registration for more details.'
+	); */
+	return;
+} else {
+	die( 'This version of the ContributionTable extension requires MediaWiki 1.25+' );
 }
