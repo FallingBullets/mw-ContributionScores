@@ -220,13 +220,14 @@ class ContributionTable extends IncludableSpecialPage {
 			}
 		}
 
-		if ( empty( $limit ) || $limit < 1 || $limit > CONTRIBUTIONSCORES_MAXINCLUDELIMIT ) {
+		if ( empty( $limit ) || $limit < 1) {
 			$limit = 10;
 		}
 		if ( is_null( $days ) || $days < 0 ) {
 			$days = 7;
 		}
 
+		$title = '';
 		if (stripos($options, 'notitle') === FALSE)
 		{
 			if ( $days > 0 ) {
