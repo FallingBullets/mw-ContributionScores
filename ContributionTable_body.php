@@ -11,6 +11,7 @@
  *
  * @ingroup Extensions
  * @author Tim Laqua <t.laqua@gmail.com>
+ * @author Joe ST <joe@fbstj.net>
  */
 class ContributionTable extends IncludableSpecialPage {
 	public function __construct() {
@@ -22,75 +23,83 @@ class ContributionTable extends IncludableSpecialPage {
 	 *
 	 * @param $days int Days in the past to run report for
 	 * @param $limit int Maximum number of users to return (default 50)
-	 * @param $ignore_blocked ignore blocked users
-	 * @param $ignore_bots ignore bot accounts
 	 * @return table of data
 	 */
-	function GetContribs( $days, $limit = 50, $ignore_blocked = false, $ignore_bots = false ) {
+	function GetContribs( $days, $limit = 50) {
 
-		$dbr = wfGetDB( DB_SLAVE );
+		$dbr = wfGetDB( DB_REPLICA );
 
-		$vars = array(
-			'r.rev_user',
-			'page_count' => 'COUNT(DISTINCT r.rev_page)',
-			'rev_count' => 'COUNT(r.rev_id)',
+		# the 'diffs' query maps rev_id to diff size
+		$diffs = $dbr->selectSQLText(
+			[ 'r' => 'revision', 's' => 'revision', ],
+			[
+				'diff_id' => 'r.rev_id',
+				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - CAST( s.rev_len AS SIGNED ) )',
+			],
+			[], __METHOD__, [],
+			[ 's' => [ 'JOIN', 's.rev_id = r.rev_parent_id', ], ]
 		);
-		$conds = array();
-		$options = array( 'GROUP BY' => 'r.rev_user' );
 
-		if ( $days > 0 ) {
-			$date = time() - ( 60 * 60 * 24 * $days );
-			$dateString = $dbr->timestamp( $date );
-			$conds[] = "r.rev_timestamp > '{$dateString}'";
+		# most of this query is provided by getQueryInfo
+		$revs = Revision::getQueryInfo();
+		# wire up the 'diffs' query to it
+		$revs['tables']['diffs'] = new Wikimedia\Rdbms\Subquery($diffs);
+		$revs['joins']['diffs'] = ['JOIN', 'diff_id = rev_id'];
+		$revs['fields'][] = 'diffs.diff_size';
+		# clear out any possible conditions or orders
+		$revs['conds'] = [];
+		$revs['order'] = [];
+		# configure the @days limits
+		if ($days > 1) {
+			$date = time() - (60 * 60 * 24 * $days);
+			$date = $dbr->timestamp($date);
+			$revs['conds'][] = "rev_timestamp > $date";
 		}
 
-		if ( $ignore_blocked ) {
-			$ipBlocksTable = $dbr->tableName( 'ipblocks' );
-			$conds[] = "r.rev_user NOT IN (SELECT ipb_user FROM {$ipBlocksTable} WHERE ipb_user <> 0)";
-		}
+		# make the query out of it
+		$revs = $dbr->selectSQLText(
+			$revs['tables'],
+			$revs['fields'],
+			$revs['conds'],
+			__METHOD__,
+			$revs['order'],
+			$revs['joins']
+		); 
 
-		if ( $ignore_bots ) {
-			$userGroupTable = $dbr->tableName( 'user_groups' );
-			$conds[] = "r.rev_user NOT IN (SELECT ug_user FROM {$userGroupTable} WHERE ug_group='bot')";
-		}
+		# create parts of the outer query
+		$tables = [
+			'revs' => new Wikimedia\Rdbms\Subquery($revs)
+		];
+		$fields = [
+			'user_id' => 'rev_user',
+			# this column is not unique :|
+			'user_name' => 'MAX(rev_user_text)',
+			# all pages this user has edited
+			'page_count' => 'COUNT( DISTINCT rev_page )',
+			# all revisions this user has made
+			'edit_count' => 'COUNT( rev_id )',
+			# the total size of their contributions
+			'diff_len' => 'SUM( diff_size )',
+			# the additions they've made
+			'diff_add' => 'SUM( CASE WHEN diff_size >0 THEN diff_size ELSE 0 END )',
+			# the removals they've made
+			'diff_sub' => 'SUM( CASE WHEN diff_size <0 THEN diff_size ELSE 0 END )',
+		];
+		$conds = [];
+		$order = [];
+		$joins = [];
+		# grouping by user
+		$order['GROUP BY'] = 'rev_user';
+		# sort by edit count
+		$order['ORDER BY'] = 'edit_count DESC';
+		# hide anons
+		$conds[] = 'rev_user IS NOT null';
+		# limit to this number of total rows
+		if ($limit > 1) { $order['LIMIT'] = $limit; }
 
-		$options['ORDER BY'] = 'page_count DESC';
-		$sqlMostPages = $dbr->selectSQLText( ['r' => 'revision'], $vars, $conds, __METHOD__, $options);
-
-		$options['ORDER BY'] = 'rev_count DESC';
-		$sqlMostRevs = $dbr->selectSQLText( ['r' => 'revision'], $vars, $conds, __METHOD__, $options);
-
-		$tables = ['r' => 'revision', 's' => 'revision' ];
-		$vars = array(
-			'X' => 'r.rev_user',
-			'size_diff' => 'SUM( @a := CAST( r.rev_len AS SIGNED ) - CAST( s.rev_len AS SIGNED ) )',
-			'pos_diff' => 'SUM( CASE WHEN @a >0 THEN @a ELSE 0 END )',
-			'neg_diff' => 'SUM( CASE WHEN @a <0 THEN @a ELSE 0 END )',
+		return $dbr->select(
+			$tables, $fields, $conds, __METHOD__, $order, $joins
 		);
-		$options['ORDER BY'] = 'size_diff DESC';
-		$joins = array(
-			's' => array( 'JOIN', 's.rev_id = r.rev_parent_id' )
-		);
-		$sqlDiffSizes = $dbr->selectSQLText($tables, $vars, $conds, __METHOD__, $options, $joins);
-
-		$vars = array( 'user_id', 'user_name', 'page_count', 'rev_count', 'size_diff', 'pos_diff', 'neg_diff' );
-		$options = [ 'ORDER BY' => 'rev_count DESC' ];
-		if ($limit > 0)
-		{
-			$options['LIMIT'] = $limit;
-		}
-		$union = $dbr->unionQueries([ $sqlMostRevs, $sqlMostPages ], FALSE);
-		$tables = array(
-			'u' => 'user',
-			's' => "({$union})",
-			't' => "({$sqlDiffSizes})"
-		);
-		$joins = array(
-			't' => array( 'INNER JOIN', 'user_id = X' ),
-			's' => array( 'JOIN', 'user_id = rev_user' ),
-		);
-
-		return $dbr->select($tables, $vars, [], __METHOD__, $options, $joins);
 	}
 
 	/// Generates a Contribution table for a given LIMIT and date range
@@ -104,11 +113,9 @@ class ContributionTable extends IncludableSpecialPage {
 	 * @return Html Table representing the requested Contribution Table.
 	 */
 	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
-		global $wgContribScoreIgnoreBots, $wgContribScoreIgnoreBlockedUsers, $wgContribScoresUseRealName;
-
 		$opts = explode( ',', strtolower( $options ) );
 
-		$res = $this->GetContribs($days, $limit, $wgContribScoreIgnoreBlockedUsers, $wgContribScoreIgnoreBots);
+		$res = $this->GetContribs($days, $limit);
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : 'sortable';
 
@@ -128,19 +135,10 @@ class ContributionTable extends IncludableSpecialPage {
 
 		$lang = $this->getLanguage();
 		foreach ( $res as $row ) {
-			// Use real name if option used and real name present.
-			if ( $wgContribScoresUseRealName && $row->user_real_name !== '' ) {
-				$userLink = Linker::userLink(
-					$row->user_id,
-					$row->user_name,
-					$row->user_real_name
-				);
-			} else {
-				$userLink = Linker::userLink(
-					$row->user_id,
-					$row->user_name
-				);
-			}
+			$userLink = Linker::userLink(
+				$row->user_id,
+				$row->user_name
+			);
 			# Option to not display user tools
 			if ( !in_array( 'notools', $opts ) ) {
 				$userLink .= Linker::userToolLinks( $row->user_id, $row->user_name );
@@ -149,11 +147,11 @@ class ContributionTable extends IncludableSpecialPage {
 			// construct row
 			$attr = [ 'style' => 'padding-right: 10px; text-align: right;' ];
 			$output .= Html::rawElement('tr', ['class' => "{$altrow}"],
-				Html::element('td', $attr, $lang->formatNum( $row->rev_count ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->edit_count ) ) .
 				Html::element('td', $attr, $lang->formatNum( $row->page_count ) ) .
-				Html::element('td', $attr, $lang->formatNum( $row->size_diff ) ) .
-				Html::element('td', $attr, $lang->formatNum( $row->pos_diff ) ) .
-				Html::element('td', $attr, $lang->formatNum( $row->neg_diff ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->diff_len ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->diff_add ) ) .
+				Html::element('td', $attr, $lang->formatNum( $row->diff_sub ) ) .
 				Html::rawElement('td', [], $userLink )
 				);
 
