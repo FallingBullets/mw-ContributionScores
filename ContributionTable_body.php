@@ -44,10 +44,12 @@ class ContributionTable extends IncludableSpecialPage {
 		$revs = Revision::getQueryInfo();
 		# wire up the 'diffs' query to it
 		$revs['tables']['diffs'] = new Wikimedia\Rdbms\Subquery($diffs);
+		$revs['tables']['page'] = 'page';
 		$revs['joins']['diffs'] = ['JOIN', 'diff_id = rev_id'];
+		$revs['joins']['page'] = ['JOIN', 'page.page_id = rev_page'];
 		$revs['fields'][] = 'diffs.diff_size';
-		# clear out any possible conditions or orders
-		$revs['conds'] = [];
+		# only include pages in root namespace
+		$revs['conds'] = ['page.page_namespace = 0'];
 		$revs['order'] = [];
 		# configure the @days limits
 		if ($days > 1) {
