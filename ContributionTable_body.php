@@ -1,7 +1,7 @@
 <?php
 /** \file
-* \brief Contains code for the ContributionTable Class (extends SpecialPage).
-*/
+ * \brief Contains code for the ContributionTable Class (extends SpecialPage).
+ */
 
 /// Special page class for the Contribution Table extension
 /**
@@ -34,10 +34,10 @@ class ContributionTable extends IncludableSpecialPage {
 			[ 'r' => 'revision', 's' => 'revision', ],
 			[
 				'diff_id' => 'r.rev_id',
-				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - CAST( s.rev_len AS SIGNED ) )',
+				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - IFNULL( CAST( s.rev_len AS SIGNED ), 0 ) )',
 			],
 			[], __METHOD__, [],
-			[ 's' => [ 'JOIN', 's.rev_id = r.rev_parent_id', ], ]
+			[ 's' => [ 'LEFT JOIN', 's.rev_id = r.rev_parent_id', ], ]
 		);
 
 		# most of this query is provided by getQueryInfo
@@ -64,7 +64,7 @@ class ContributionTable extends IncludableSpecialPage {
 			__METHOD__,
 			$revs['order'],
 			$revs['joins']
-		); 
+		);
 
 		# create parts of the outer query
 		$tables = [
@@ -128,7 +128,7 @@ class ContributionTable extends IncludableSpecialPage {
 			Html::element('th', [], $this->msg( 'contributiontable-add' ) ) .
 			Html::element('th', [], $this->msg( 'contributiontable-sub' ) ) .
 			Html::element('th', ['style' => 'width: 100%;'], $this->msg( 'contributiontable-username' ) )
-			);
+		);
 		$output .= $row;
 
 		$altrow = '';
@@ -153,7 +153,7 @@ class ContributionTable extends IncludableSpecialPage {
 				Html::element('td', $attr, $lang->formatNum( $row->diff_add ) ) .
 				Html::element('td', $attr, $lang->formatNum( $row->diff_sub ) ) .
 				Html::rawElement('td', [], $userLink )
-				);
+			);
 
 			if ( $altrow == '' && empty( $sortable ) ) {
 				$altrow = 'odd';
@@ -175,10 +175,10 @@ class ContributionTable extends IncludableSpecialPage {
 			),
 			Html::rawElement('tr', [],
 				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $title)
-				) .
+			) .
 			Html::rawElement('tr', [],
 				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $output)
-				)
+			)
 		);
 	}
 
