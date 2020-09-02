@@ -49,7 +49,7 @@ class ContributionTable extends IncludableSpecialPage {
 		$revs['joins']['pages'] = ['JOIN', 'page_id = rev_page'];
 		$revs['fields'][] = 'diffs.diff_size';
 		# only include pages in root namespace
-		$revs['conds'] = ['pages.page_namespace = 0'];
+		$revs['conds'] = ['MOD(pages.page_namespace, 2) = 0', 'pages.page_namespace NOT IN (2, 3002)'];
 		$revs['order'] = [];
 		# configure the @days limits
 		if ($days > 1) {
