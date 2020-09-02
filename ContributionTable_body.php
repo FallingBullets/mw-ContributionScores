@@ -23,9 +23,10 @@ class ContributionTable extends IncludableSpecialPage {
 	 *
 	 * @param $days int Days in the past to run report for
 	 * @param $limit int Maximum number of users to return (default 50)
+	 * @param $includeUserNamespace bool Whether to include edits on pages in the user namespace (default false)
 	 * @return table of data
 	 */
-	function GetContribs( $days, $limit = 50) {
+	function GetContribs( $days, $limit = 50, $includeUserNamespace = false) {
 
 		$dbr = wfGetDB( DB_REPLICA );
 
@@ -48,8 +49,15 @@ class ContributionTable extends IncludableSpecialPage {
 		$revs['joins']['diffs'] = ['JOIN', 'diff_id = rev_id'];
 		$revs['joins']['pages'] = ['JOIN', 'page_id = rev_page'];
 		$revs['fields'][] = 'diffs.diff_size';
-		# only include pages in root namespace
-		$revs['conds'] = ['MOD(pages.page_namespace, 2) = 0', 'pages.page_namespace NOT IN (2, 3002)'];
+		# Exclude pages in talk, user and site namespaces, unless user should explicitly be included
+		$excludedNamespaces = [3002];
+		if (!$includeUserNamespace) {
+			$excludedNamespaces[] = 2;
+		}
+		$revs['conds'] = [
+			'MOD(pages.page_namespace, 2) = 0',
+			sprintf('pages.page_namespace NOT IN (%s)', implode(',', $excludedNamespaces))
+		];
 		$revs['order'] = [];
 		# configure the @days limits
 		if ($days > 1) {
@@ -112,12 +120,13 @@ class ContributionTable extends IncludableSpecialPage {
 	 * @param $limit int Maximum number of users to return (default 50)
 	 * @param $title Title (default null)
 	 * @param $options array of options (default none; nosort/notools)
+	 * @param $includeUserNamespace bool Whether to include edits on pages in the user namespace (default false)
 	 * @return Html Table representing the requested Contribution Table.
 	 */
-	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
+	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none', $includeUserNamespace = false ) {
 		$opts = explode( ',', strtolower( $options ) );
 
-		$res = $this->GetContribs($days, $limit);
+		$res = $this->GetContribs($days, $limit, $includeUserNamespace);
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : 'sortable';
 
@@ -241,7 +250,9 @@ class ContributionTable extends IncludableSpecialPage {
 			$title = Html::element('h4', array( 'class' => 'contributiontable-title' ), $title );
 		}
 
-		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
+		$includeUserNamespace = $days > 0;
+
+		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options, $includeUserNamespace ) );
 	}
 
 	/**
@@ -270,7 +281,10 @@ class ContributionTable extends IncludableSpecialPage {
 			}
 			$title = Html::element('h2', array( 'class' => 'contributiontable-title' ), $title);
 			$out->addHTML( $title );
-			$out->addHTML( $this->genContributionScoreTable( $days, $limit ) );
+
+			$includeUserNamespace = $days > 0;
+
+			$out->addHTML( $this->genContributionScoreTable( $days, $limit, null, 'none', $includeUserNamespace ) );
 		}
 	}
 
