@@ -35,7 +35,7 @@ class ContributionTable extends IncludableSpecialPage {
 			[ 'r' => 'revision', 's' => 'revision', ],
 			[
 				'diff_id' => 'r.rev_id',
-				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - IFNULL( CAST( s.rev_len AS SIGNED ), 0 ) )',
+				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - IF( r.rev_parent_id = 0, 0, CAST( s.rev_len AS SIGNED ) ) )',
 			],
 			[], __METHOD__, [],
 			[ 's' => [ 'LEFT JOIN', 's.rev_id = r.rev_parent_id', ], ]
