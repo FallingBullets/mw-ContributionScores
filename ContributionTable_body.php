@@ -1,7 +1,7 @@
 <?php
 /** \file
-* \brief Contains code for the ContributionTable Class (extends SpecialPage).
-*/
+ * \brief Contains code for the ContributionTable Class (extends SpecialPage).
+ */
 
 /// Special page class for the Contribution Table extension
 /**
@@ -23,9 +23,10 @@ class ContributionTable extends IncludableSpecialPage {
 	 *
 	 * @param $days int Days in the past to run report for
 	 * @param $limit int Maximum number of users to return (default 50)
+	 * @param $includeUserNamespace bool Whether to include edits on pages in the user namespace (default false)
 	 * @return table of data
 	 */
-	function GetContribs( $days, $limit = 50) {
+	function GetContribs( $days, $limit = 50, $includeUserNamespace = false) {
 
 		$dbr = wfGetDB( DB_REPLICA );
 
@@ -34,20 +35,29 @@ class ContributionTable extends IncludableSpecialPage {
 			[ 'r' => 'revision', 's' => 'revision', ],
 			[
 				'diff_id' => 'r.rev_id',
-				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - CAST( s.rev_len AS SIGNED ) )',
+				'diff_size' => '( CAST( r.rev_len AS SIGNED ) - IF( r.rev_parent_id = 0, 0, CAST( s.rev_len AS SIGNED ) ) )',
 			],
 			[], __METHOD__, [],
-			[ 's' => [ 'JOIN', 's.rev_id = r.rev_parent_id', ], ]
+			[ 's' => [ 'LEFT JOIN', 's.rev_id = r.rev_parent_id', ], ]
 		);
 
 		# most of this query is provided by getQueryInfo
 		$revs = Revision::getQueryInfo();
 		# wire up the 'diffs' query to it
 		$revs['tables']['diffs'] = new Wikimedia\Rdbms\Subquery($diffs);
+		$revs['tables']['pages'] = 'page';
 		$revs['joins']['diffs'] = ['JOIN', 'diff_id = rev_id'];
+		$revs['joins']['pages'] = ['JOIN', 'page_id = rev_page'];
 		$revs['fields'][] = 'diffs.diff_size';
-		# clear out any possible conditions or orders
-		$revs['conds'] = [];
+		# Exclude pages in talk, user and site namespaces, unless user should explicitly be included
+		$excludedNamespaces = [3002];
+		if (!$includeUserNamespace) {
+			$excludedNamespaces[] = 2;
+		}
+		$revs['conds'] = [
+			'MOD(pages.page_namespace, 2) = 0',
+			sprintf('pages.page_namespace NOT IN (%s)', implode(',', $excludedNamespaces))
+		];
 		$revs['order'] = [];
 		# configure the @days limits
 		if ($days > 1) {
@@ -64,7 +74,7 @@ class ContributionTable extends IncludableSpecialPage {
 			__METHOD__,
 			$revs['order'],
 			$revs['joins']
-		); 
+		);
 
 		# create parts of the outer query
 		$tables = [
@@ -110,12 +120,13 @@ class ContributionTable extends IncludableSpecialPage {
 	 * @param $limit int Maximum number of users to return (default 50)
 	 * @param $title Title (default null)
 	 * @param $options array of options (default none; nosort/notools)
+	 * @param $includeUserNamespace bool Whether to include edits on pages in the user namespace (default false)
 	 * @return Html Table representing the requested Contribution Table.
 	 */
-	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none' ) {
+	function genContributionScoreTable( $days, $limit = 50, $title = null, $options = 'none', $includeUserNamespace = false ) {
 		$opts = explode( ',', strtolower( $options ) );
 
-		$res = $this->GetContribs($days, $limit);
+		$res = $this->GetContribs($days, $limit, $includeUserNamespace);
 
 		$sortable = in_array( 'nosort', $opts ) ? '' : 'sortable';
 
@@ -128,7 +139,7 @@ class ContributionTable extends IncludableSpecialPage {
 			Html::element('th', [], $this->msg( 'contributiontable-add' ) ) .
 			Html::element('th', [], $this->msg( 'contributiontable-sub' ) ) .
 			Html::element('th', ['style' => 'width: 100%;'], $this->msg( 'contributiontable-username' ) )
-			);
+		);
 		$output .= $row;
 
 		$altrow = '';
@@ -153,7 +164,7 @@ class ContributionTable extends IncludableSpecialPage {
 				Html::element('td', $attr, $lang->formatNum( $row->diff_add ) ) .
 				Html::element('td', $attr, $lang->formatNum( $row->diff_sub ) ) .
 				Html::rawElement('td', [], $userLink )
-				);
+			);
 
 			if ( $altrow == '' && empty( $sortable ) ) {
 				$altrow = 'odd';
@@ -175,10 +186,10 @@ class ContributionTable extends IncludableSpecialPage {
 			),
 			Html::rawElement('tr', [],
 				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $title)
-				) .
+			) .
 			Html::rawElement('tr', [],
 				Html::rawElement('td', [ 'style' => 'padding: 0px;'], $output)
-				)
+			)
 		);
 	}
 
@@ -239,7 +250,9 @@ class ContributionTable extends IncludableSpecialPage {
 			$title = Html::element('h4', array( 'class' => 'contributiontable-title' ), $title );
 		}
 
-		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options ) );
+		$includeUserNamespace = $days > 0;
+
+		$this->getOutput()->addHTML( $this->genContributionScoreTable( $days, $limit, $title, $options, $includeUserNamespace ) );
 	}
 
 	/**
@@ -268,7 +281,10 @@ class ContributionTable extends IncludableSpecialPage {
 			}
 			$title = Html::element('h2', array( 'class' => 'contributiontable-title' ), $title);
 			$out->addHTML( $title );
-			$out->addHTML( $this->genContributionScoreTable( $days, $limit ) );
+
+			$includeUserNamespace = $days > 0;
+
+			$out->addHTML( $this->genContributionScoreTable( $days, $limit, null, 'none', $includeUserNamespace ) );
 		}
 	}
 

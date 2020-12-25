@@ -6,7 +6,7 @@
     },
     "contributiontable": "Contribution tables",
     "contributiontable-desc": "Polls the wiki database for highest [[Special:ContributionTable|user contribution volume]]",
-    "contributiontable-info": "Tables of contribution ammounts by users.",
+    "contributiontable-info": "Tables of contribution amounts by users. All time contributions exclude user pages.",
     "contributiontable-top": "(Top $1)",
     "contributiontable-days": "Last {{PLURAL:$1|day|$1 days}}",
     "contributiontable-allrevisions": "All time",
